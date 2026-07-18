@@ -34,6 +34,7 @@ function saveData(data) {
     }
 }
 
+// ===== API Routes =====
 app.get('/api/data', (req, res) => {
     try {
         const data = loadData();
@@ -209,13 +210,27 @@ app.get('/', (req, res) => {
     });
 });
 
+// ===== شروع سرور =====
 app.listen(PORT, () => {
     console.log(`🚀 سرور ابری در پورت ${PORT} راه‌اندازی شد`);
     console.log(`📁 فایل داده: ${DATA_FILE}`);
-    console.log(`🌐 آدرس: http://localhost:${PORT}`);
 });
 
+// ایجاد فایل data.json اگر وجود نداشته باشد
 if (!fs.existsSync(DATA_FILE)) {
     saveData({ books: [], users: [], chats: {}, visitors: [], lastModified: 0 });
     console.log('✅ فایل data.json ایجاد شد');
 }
+
+// ============================================================
+//  🚀 بیدارکننده خودکار (جلوگیری از خواب)
+// ============================================================
+const WAKE_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+
+console.log(`⏰ بیدارکننده خودکار هر ۱۰ دقیقه فعال است: ${WAKE_URL}`);
+
+setInterval(() => {
+    fetch(WAKE_URL)
+        .then(() => console.log('🔄 سرور بیدار نگه داشته شد'))
+        .catch(err => console.log('⚠️ خطا در بیدار کردن:', err.message));
+}, 10 * 60 * 1000); // هر ۱۰ دقیقه
